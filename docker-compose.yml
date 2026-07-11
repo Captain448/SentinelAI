@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - LOG_LEVEL=INFO
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/sentinel_db
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/sentinel_db
+      - REDIS_URL=redis://redis:6379/0
+      - SIMULATION_SPEED_MULTIPLIER=1.0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./backend/app:/app/app
+      - .env:/app/.env
+    networks:
+      - sentinel_network
+
+  db:
+    image: postgres:16-alpine
+    container_name: sentinel_db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=sentinel_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sentinel_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - sentinel_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: sentinel_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - sentinel_network
+
+volumes:
+  pgdata:
+
+networks:
+  sentinel_network:
+    driver: bridge

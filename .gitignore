@@ -1,0 +1,36 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Database & SQLite files
+*.db
+*.sqlite3
+sentinel.db
+
+# Logs
+logs/
+*.log
+
+# Env config
+.env
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
